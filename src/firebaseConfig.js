@@ -2,14 +2,14 @@ import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAo83elT2Rk-WjW4VQZOpYDniaHg_0H-jU",
-  authDomain: "hydro-check-eb288.firebaseapp.com",
-  databaseURL: "https://hydro-check-eb288-default-rtdb.firebaseio.com",
-  projectId: "hydro-check-eb288",
-  storageBucket: "hydro-check-eb288.firebasestorage.app",
-  messagingSenderId: "26913487637",
-  appId: "1:26913487637:web:5baaf88b934fa10a49471c",
-  measurementId: "G-K6LX4MCEJY"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
