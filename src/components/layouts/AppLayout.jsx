@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Layout, Drawer, Menu, message, Tooltip } from 'antd';
-import { BellOutlined, MenuOutlined, HomeOutlined, InfoCircleOutlined, DashboardOutlined, RocketOutlined } from '@ant-design/icons';
+import { MenuOutlined, HomeOutlined, InfoCircleOutlined, DashboardOutlined, RocketOutlined } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { seedMockData } from '@/utils/simulator';
 
@@ -11,7 +11,6 @@ export const AppLayout = ({ alerts, monitors }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const alertCount = alerts?.length || 0;
 
   const handleMenuClick = ({ key }) => {
     setIsMenuVisible(false);
@@ -51,13 +50,12 @@ export const AppLayout = ({ alerts, monitors }) => {
           </Tooltip>
           <Button 
             type="primary" 
-            danger={alertCount > 0}
-            icon={<BellOutlined />} 
+            icon={<DashboardOutlined />} 
             size="middle"
-            className={`shadow-md ${alertCount > 0 ? 'animate-pulse' : ''}`}
+            className="shadow-md"
             onClick={() => navigate('/dashboard')}
           >
-            {alertCount} <span className="hidden sm:inline">Alertas</span>
+            <span className="hidden sm:inline">Dashboard</span>
           </Button>
         </div>
       </Header>
