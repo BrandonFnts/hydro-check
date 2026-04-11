@@ -38,16 +38,18 @@ export const AppLayout = ({ alerts, monitors }) => {
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          <Tooltip title="Simular lectura de RTU">
-            <Button 
-              type="default" 
-              icon={<RocketOutlined className="text-blue-600" />} 
-              onClick={handleSimulate}
-              className="border-blue-200 hover:border-blue-500 hover:text-blue-600 shadow-sm"
-            >
-              <span className="hidden sm:inline">Simular</span>
-            </Button>
-          </Tooltip>
+          {import.meta.env.VITE_ENABLE_SIMULATION === 'true' && (
+            <Tooltip title="Simular lectura de RTU">
+              <Button 
+                type="default" 
+                icon={<RocketOutlined className="text-blue-600" />} 
+                onClick={handleSimulate}
+                className="border-blue-200 hover:border-blue-500 hover:text-blue-600 shadow-sm"
+              >
+                <span className="hidden sm:inline">Simular</span>
+              </Button>
+            </Tooltip>
+          )}
           <Button 
             type="primary" 
             icon={<DashboardOutlined />} 
