@@ -19,10 +19,31 @@ const icons = {
 
 const MapView = ({ nodes = [], onNodeSelect }) => {
   return (
-    <div style={{ height: '100vh', width: '100vw', position: 'absolute', top: 0, left: 0, zIndex: 0 }}>
-      <MapContainer 
-        center={[20.3000, -99.2000]} 
-        zoom={11} 
+    <div style={{ height: '100%', width: '100%', position: 'absolute', top: 0, left: 0, zIndex: 0 }}>
+      <div 
+        className="absolute bottom-8 right-8 bg-white p-4 rounded-lg shadow-md border border-gray-100"
+        style={{ zIndex: 1000 }}
+      >
+        <h4 className="font-bold text-sm mb-3 border-b pb-1 text-gray-800">Estado del Nodo</h4>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-full border border-white shadow-sm" style={{ backgroundColor: '#10b981' }}></div>
+            <span className="text-sm text-gray-700">Óptimo</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-full border border-white shadow-sm" style={{ backgroundColor: '#f59e0b' }}></div>
+            <span className="text-sm text-gray-700">Precaución</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-full border border-white shadow-sm" style={{ backgroundColor: '#ef4444' }}></div>
+            <span className="text-sm text-gray-700">Crítico</span>
+          </div>
+        </div>
+      </div>
+
+      <MapContainer
+        center={[20.3000, -99.2000]}
+        zoom={11}
         style={{ height: '100%', width: '100%' }}
         zoomControl={false}
       >
@@ -31,8 +52,8 @@ const MapView = ({ nodes = [], onNodeSelect }) => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {nodes.map(node => (
-          <Marker 
-            key={node.id} 
+          <Marker
+            key={node.id}
             position={[node.lat, node.lng]}
             icon={icons[node.status] || icons['success']}
           >
