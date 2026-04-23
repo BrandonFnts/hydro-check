@@ -22,7 +22,7 @@ Datos actuales:
 `;
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:streamGenerateContent?alt=sse&key=${apiKey}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -78,6 +78,9 @@ Datos actuales:
 
     if (onFinish) onFinish();
   } catch (error) {
+    // Si se abortó la petición (por cambio de nodo), ignorar silenciosamente
+    if (error.name === 'AbortError') return;
+    console.error("[aiService] Error al conectar con Gemini AI:", error);
     if (onError) onError("Error al conectar con la Inteligencia artificial. Revisa tu consola o intenta más tarde.");
   }
 };

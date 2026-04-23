@@ -13,7 +13,7 @@ const KpiSection = ({ node }) => {
   useEffect(() => {
     const abortController = new AbortController();
 
-    let wordQueue = [];
+    let charQueue = [];
     let displayedText = "";
     let typingInterval = null;
 
@@ -21,16 +21,16 @@ const KpiSection = ({ node }) => {
       if (typingInterval) return;
       setIsTyping(true);
       typingInterval = setInterval(() => {
-        if (wordQueue.length > 0) {
-          const nextWord = wordQueue.shift();
-          displayedText += nextWord;
+        if (charQueue.length > 0) {
+          const nextChar = charQueue.shift();
+          displayedText += nextChar;
           setAiMessage(displayedText);
         } else if (!loadingRef.current) {
           clearInterval(typingInterval);
           typingInterval = null;
           setIsTyping(false);
         }
-      }, 30);
+      }, 15);
     };
 
     const loadingRef = { current: true };
@@ -44,8 +44,7 @@ const KpiSection = ({ node }) => {
         (chunk) => {
           if (abortController.signal.aborted) return;
           setLoadingAi(false);
-          const words = chunk.match(/\S+\s*/g) || [chunk];
-          wordQueue.push(...words);
+          charQueue.push(...chunk);
           startTyping();
         },
         (errorMsg) => {
@@ -61,7 +60,9 @@ const KpiSection = ({ node }) => {
       );
     };
 
-    if (node) {
+    const nodeReady = node && node.id && node.turbidez !== undefined && node.salinity !== undefined;
+
+    if (nodeReady) {
       fetchAI();
     }
 
