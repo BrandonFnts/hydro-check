@@ -2,7 +2,7 @@ export const streamAIInsight = async (node, onChunk, onError, onFinish, signal) 
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
   if (!apiKey) {
-    onChunk("API Key de Google Gemini no configurada. Por favor, añade VITE_GEMINI_API_KEY a tu archivo .env para habilitar el análisis predictivo.");
+    onChunk("Gemini no esta configurado :C");
     if (onFinish) onFinish();
     return;
   }
@@ -69,7 +69,6 @@ Datos actuales:
                 onChunk(data.candidates[0].content.parts[0].text);
               }
             } catch (e) {
-              // Ignorar parsing temporal o parcial
             }
           }
         }
@@ -79,7 +78,6 @@ Datos actuales:
 
     if (onFinish) onFinish();
   } catch (error) {
-    console.error("[aiService] Error al conectar con Gemini AI:", error);
     if (onError) onError("Error al conectar con la Inteligencia artificial. Revisa tu consola o intenta más tarde.");
   }
 };
