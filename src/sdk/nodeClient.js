@@ -1,5 +1,5 @@
 import { db } from '@/firebaseConfig';
-import { ref, onValue, query, limitToLast, orderByChild } from 'firebase/database';
+import { ref, onValue } from 'firebase/database';
 import { getSalinityStatus, calculateIAR } from '@/helpers/salinityHelper';
 
 export const nodeClient = {
