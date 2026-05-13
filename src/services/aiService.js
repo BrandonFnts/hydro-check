@@ -1,5 +1,62 @@
+const API_KEY = () => import.meta.env.VITE_GEMINI_API_KEY;
+const MODEL = "gemini-3.1-flash-lite";
+const BASE_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}`;
+
+// Prompt del sistema que restringe las respuestas al ámbito agronómico
+const SYSTEM_PROMPT = `Eres un asistente experto exclusivamente en agronomía, hidroponía, calidad de agua, riego y cultivos.
+REGLAS ESTRICTAS:
+- Solo puedes responder preguntas relacionadas con agricultura, riego, calidad de agua, cultivos, suelos, pH, salinidad, turbidez, nutrientes, plagas agrícolas, normas como la NOM-001, y temas directamente relacionados.
+- Si el usuario pregunta algo fuera de estos temas, responde amablemente: "Lo siento, solo puedo ayudarte con temas relacionados a agricultura, riego y calidad de agua. ¿Tienes alguna duda sobre tus cultivos o el sistema de riego?"
+- Responde siempre en español, de forma clara, corta y amigable para un agricultor.
+- No uses formato markdown, solo texto plano.
+- Mantén tus respuestas concisas (máximo 4 oraciones).`;
+
+/**
+ * Procesa un stream SSE de Gemini y llama onChunk con cada fragmento de texto.
+ */
+const processSSEStream = async (response, onChunk, onFinish, signal) => {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder("utf-8");
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (signal?.aborted) { reader.cancel(); return; }
+
+    buffer += decoder.decode(value, { stream: true });
+    buffer = buffer.replace(/\r\n/g, '\n');
+    let boundary = buffer.indexOf('\n\n');
+
+    while (boundary !== -1) {
+      const message = buffer.slice(0, boundary);
+      buffer = buffer.slice(boundary + 2);
+
+      if (message.startsWith('data: ')) {
+        const dataStr = message.substring(6).trim();
+        if (dataStr && dataStr !== "[DONE]") {
+          try {
+            const data = JSON.parse(dataStr);
+            if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+              onChunk(data.candidates[0].content.parts[0].text);
+            }
+          } catch (e) {
+            // Ignorar parsing parcial
+          }
+        }
+      }
+      boundary = buffer.indexOf('\n\n');
+    }
+  }
+
+  if (onFinish) onFinish();
+};
+
+/**
+ * Genera el análisis inicial del nodo con streaming.
+ */
 export const streamAIInsight = async (node, onChunk, onError, onFinish, signal) => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const apiKey = API_KEY();
 
   if (!apiKey) {
     onChunk("Gemini no esta configurado :C");
@@ -22,16 +79,12 @@ Datos actuales:
 `;
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:streamGenerateContent?alt=sse&key=${apiKey}`, {
+    const response = await fetch(`${BASE_URL}:streamGenerateContent?alt=sse&key=${apiKey}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       signal,
       body: JSON.stringify({
-        contents: [{
-          parts: [{ text: prompt }]
-        }]
+        contents: [{ parts: [{ text: prompt }] }]
       })
     });
 
@@ -44,43 +97,88 @@ Datos actuales:
       return;
     }
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    let buffer = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      buffer = buffer.replace(/\r\n/g, '\n');
-      let boundary = buffer.indexOf('\n\n');
-
-      while (boundary !== -1) {
-        const message = buffer.slice(0, boundary);
-        buffer = buffer.slice(boundary + 2);
-
-        if (message.startsWith('data: ')) {
-          const dataStr = message.substring(6).trim();
-          if (dataStr && dataStr !== "[DONE]") {
-            try {
-              const data = JSON.parse(dataStr);
-              if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-                onChunk(data.candidates[0].content.parts[0].text);
-              }
-            } catch (e) {
-              // Ignorar parsing parcial
-            }
-          }
-        }
-        boundary = buffer.indexOf('\n\n');
-      }
-    }
-
-    if (onFinish) onFinish();
+    await processSSEStream(response, onChunk, onFinish, signal);
   } catch (error) {
     if (error.name === 'AbortError') return;
     console.error("[aiService] Error al conectar con Gemini AI:", error);
     if (onError) onError("Error al conectar con la Inteligencia artificial. Revisa tu consola o intenta más tarde.");
+  }
+};
+
+/**
+ * Envía un mensaje de chat con contexto del nodo y historial de conversación.
+ * @param {Object} node - Datos del nodo sensor
+ * @param {Array} history - Historial de mensajes [{role: 'user'|'model', text: '...'}]
+ * @param {string} userMessage - Mensaje del usuario
+ * @param {Function} onChunk - Callback para cada fragmento de texto
+ * @param {Function} onError - Callback para errores
+ * @param {Function} onFinish - Callback al finalizar
+ * @param {AbortSignal} signal - Señal para cancelar la petición
+ */
+export const streamChatMessage = async (node, history, userMessage, onChunk, onError, onFinish, signal) => {
+  const apiKey = API_KEY();
+
+  if (!apiKey) {
+    if (onError) onError("API Key no configurada.");
+    return;
+  }
+
+  // Construir el contexto del nodo para que la IA siempre sepa de qué está hablando
+  const nodeContext = `Contexto del nodo sensor actual:
+- Turbidez: ${node.turbidez} NTU
+- Salinidad (CE): ${node.salinity} ppt
+- Tendencia salinidad: ${node.trend}%
+- pH: ${node.ph}
+- Temperatura: ${node.temp}°C
+- Índice de Aptitud de Riego (IAR): ${node.iar}%`;
+
+  const contents = [
+    { role: "user", parts: [{ text: `${SYSTEM_PROMPT}\n\n${nodeContext}` }] },
+    { role: "model", parts: [{ text: "Entendido. Soy tu asistente especializado en agricultura y calidad de agua. Estoy listo para responder tus dudas sobre este nodo sensor y tus cultivos." }] },
+    ...history.map(msg => ({
+      role: msg.role,
+      parts: [{ text: msg.text }]
+    })),
+    { role: "user", parts: [{ text: userMessage }] }
+  ];
+
+  const MAX_RETRIES = 2;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(`${BASE_URL}:streamGenerateContent?alt=sse&key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal,
+        body: JSON.stringify({ contents })
+      });
+
+      if (response.ok) {
+        await processSSEStream(response, onChunk, onFinish, signal);
+        return;
+      }
+
+      if (response.status === 503 && attempt < MAX_RETRIES) {
+        await new Promise(r => setTimeout(r, 2000));
+        continue;
+      }
+      if (response.status === 429) {
+        if (onError) onError("Límite de peticiones alcanzado. Espera un momento antes de enviar otra pregunta.");
+      } else if (response.status === 503) {
+        if (onError) onError("El servicio de IA está temporalmente saturado. Intenta de nuevo en unos segundos.");
+      } else {
+        if (onError) onError(`Error HTTP: ${response.status}`);
+      }
+      return;
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+      if (attempt < MAX_RETRIES) {
+        await new Promise(r => setTimeout(r, 2000));
+        continue;
+      }
+      console.error("[aiService] Error en chat:", error);
+      if (onError) onError("Error al enviar tu pregunta. Intenta de nuevo.");
+      return;
+    }
   }
 };
