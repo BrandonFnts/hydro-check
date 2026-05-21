@@ -18,7 +18,7 @@ export const seedMockData = () => {
     const nuevaLectura = {
       nombre: nodo.nombre,
       ph: parseFloat((Math.random() * (8.5 - 6.0) + 6.0).toFixed(2)),
-      ce: parseFloat((Math.random() * (3.0 - 0.5) + 0.5).toFixed(2)),
+      ce: Math.round(Math.random() * (800 - 50) + 50),
       temp: parseFloat((Math.random() * (26 - 18) + 18).toFixed(1)),
       turbidez: Math.floor(Math.random() * 200),
       lat: parseFloat(nodo.lat.toFixed(5)),

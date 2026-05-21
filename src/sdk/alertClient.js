@@ -17,7 +17,7 @@ export const alertClient = {
             
             Object.keys(nodeHistory).forEach(pushId => {
               const lectura = nodeHistory[pushId];
-              const salinity = Math.round((lectura.ce || 0) * 500);
+              const salinity = Math.round(parseFloat(lectura.ce) || 0);
               const status = getSalinityStatus(salinity);
 
               if (status !== 'success') {
