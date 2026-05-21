@@ -20,7 +20,7 @@ export const nodeClient = {
               entry.timestamp > (latest.timestamp || 0) ? entry : latest
               , {});
 
-            const salinity = lectura.ce || 0;
+            const salinity = Math.round((lectura.ce || 0) * 500);
             const ph = lectura.ph || 7.0;
             const turbidez = lectura.turbidez || 0;
             const temp = lectura.temp || 20.0;

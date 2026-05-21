@@ -4,28 +4,28 @@
  */
 
 const THRESHOLDS = {
-  WARNING: 1.0,
-  DANGER: 2.0,
+  WARNING: 500, // ppm
+  DANGER: 1000, // ppm
 };
 
 /**
- * Returns the status classification for a given salinity (CE) reading.
- * @param {number} ce - Conductivity / salinity value in dS/m
+ * Returns the status classification for a given salinity (ppm) reading.
+ * @param {number} ppm - Salinity value in ppm
  * @returns {'success' | 'warning' | 'danger'}
  */
-export const getSalinityStatus = (ce) => {
-  if (ce > THRESHOLDS.DANGER) return 'danger';
-  if (ce > THRESHOLDS.WARNING) return 'warning';
+export const getSalinityStatus = (ppm) => {
+  if (ppm > THRESHOLDS.DANGER) return 'danger';
+  if (ppm > THRESHOLDS.WARNING) return 'warning';
   return 'success';
 };
 
 /**
  * Returns a hex color representing the contamination level.
- * @param {number} ce - Conductivity / salinity value
+ * @param {number} ppm - Salinity value in ppm
  * @returns {string} Hex color code
  */
-export const getSalinityColor = (ce) => {
-  const status = getSalinityStatus(ce);
+export const getSalinityColor = (ppm) => {
+  const status = getSalinityStatus(ppm);
   const colors = {
     success: '#22c55e',
     warning: '#eab308',
@@ -36,23 +36,23 @@ export const getSalinityColor = (ce) => {
 
 /**
  * Returns the alert threshold limit for a given salinity value.
- * @param {number} ce
+ * @param {number} ppm
  * @returns {number}
  */
-export const getSalinityLimit = (ce) => {
-  return ce > THRESHOLDS.DANGER ? THRESHOLDS.DANGER : THRESHOLDS.WARNING;
+export const getSalinityLimit = (ppm) => {
+  return ppm > THRESHOLDS.DANGER ? THRESHOLDS.DANGER : THRESHOLDS.WARNING;
 };
 
 /**
- * Calculates the Irrigation Aptitude Index (IAR) based on pH and salinity.
+ * Calculates the Irrigation Aptitude Index (IAR) based on pH and salinity (ppm).
  * @param {number} ph - pH reading
- * @param {number} ce - Salinity (CE) reading
+ * @param {number} ppm - Salinity reading in ppm
  * @returns {number} IAR percentage (0-100)
  */
-export const calculateIAR = (ph, ce) => {
+export const calculateIAR = (ph, ppm) => {
   let iar = 100;
   if (ph < 6.5 || ph > 8.5) iar -= 30;
-  if (ce > 1.5) iar -= 40;
-  else if (ce > 1.0) iar -= 15;
+  if (ppm > 750) iar -= 40;      // corresponds to ~1.5 dS/m
+  else if (ppm > 500) iar -= 15; // corresponds to ~1.0 dS/m
   return Math.max(0, iar);
 };

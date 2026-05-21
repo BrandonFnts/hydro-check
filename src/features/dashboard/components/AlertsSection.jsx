@@ -18,13 +18,13 @@ const columns = [
     title: 'Valor Registrado',
     dataIndex: 'value',
     key: 'value',
-    render: (val) => `${val} ppt`,
+    render: (val) => `${val} ppm`,
   },
   {
     title: 'Límite',
     dataIndex: 'limit',
     key: 'limit',
-    render: (val) => `${val} ppt`,
+    render: (val) => `${val} ppm`,
   },
   {
     title: 'Estado',

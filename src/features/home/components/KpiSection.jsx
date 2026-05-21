@@ -276,11 +276,11 @@ const KpiSection = ({ node }) => {
             size={120}
           />
           <div className="mt-4 flex flex-col gap-2">
-            <Tag color={node.salinity < 2.0 ? 'success' : 'error'} className="text-xs px-2 py-1 mx-0 flex justify-center">
-              🌽 Apta para Maíz/Alfalfa
+            <Tag color={node.salinity < 1000 ? 'success' : 'error'} className="text-xs px-2 py-1 mx-0 flex justify-center">
+              🌽 Apta para Maíz/Alfalfa (Límite: 1000 ppm)
             </Tag>
-            <Tag color={node.salinity < 1.0 ? 'success' : 'error'} className="text-xs px-2 py-1 mx-0 flex justify-center">
-              🥬 Apta para Hortalizas Sensibles
+            <Tag color={node.salinity < 500 ? 'success' : 'error'} className="text-xs px-2 py-1 mx-0 flex justify-center">
+              🥬 Apta para Hortalizas Sensibles (Límite: 500 ppm)
             </Tag>
           </div>
         </Card>

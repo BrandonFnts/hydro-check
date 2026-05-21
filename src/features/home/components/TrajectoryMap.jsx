@@ -79,7 +79,7 @@ const TrajectoryMap = ({ nodeId, mapData, polylinePositions, mapStyle }) => {
                         <MapTooltip>
                           <div className="text-center">
                             <strong>{d.time}</strong><br/>
-                            Salinidad: {d.salinity} ppt
+                            Salinidad: {d.salinity} ppm
                           </div>
                         </MapTooltip>
                       </CircleMarker>

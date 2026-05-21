@@ -27,7 +27,7 @@ export const useNodeHistory = (nodeId, active, timeRangeHours) => {
 
           const chartData = filteredRecords.map(r => ({
             time: new Date(r.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            salinity: r.ce,
+            salinity: Math.round((r.ce || 0) * 500),
             lat: r.lat,
             lng: r.lng
           }));

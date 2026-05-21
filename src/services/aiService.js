@@ -71,11 +71,18 @@ No uses formato markdown, solo texto plano ni caracteres especiales.
 
 Datos actuales:
 - Turbidez (Suciedad del agua): ${node.turbidez} NTU
-- Salinidad (CE): ${node.salinity} ppt
+- Salinidad: ${node.salinity} ppm
 - Tendencia salinidad desde ayer: ${node.trend}%
 - pH: ${node.ph}
 - Temperatura: ${node.temp}°C
 - Índice de Aptitud de Riego (IAR): ${node.iar}%
+
+Guíate con esta tabla de referencia de salinidad en ppm:
+- Destilada: 0-10 ppm
+- Agua purificada: 10-50 ppm
+- Agua corriente (ideal/segura para riego): 50-500 ppm
+- Agua dura (aceptable, precaución): 500-1000 ppm
+- Salina/Agua de mar (inaceptable/peligro para cultivos): >1000 ppm (el agua de mar típica es 35,000 ppm)
 `;
 
   try {
@@ -126,11 +133,18 @@ export const streamChatMessage = async (node, history, userMessage, onChunk, onE
   // Construir el contexto del nodo para que la IA siempre sepa de qué está hablando
   const nodeContext = `Contexto del nodo sensor actual:
 - Turbidez: ${node.turbidez} NTU
-- Salinidad (CE): ${node.salinity} ppt
+- Salinidad: ${node.salinity} ppm
 - Tendencia salinidad: ${node.trend}%
 - pH: ${node.ph}
 - Temperatura: ${node.temp}°C
-- Índice de Aptitud de Riego (IAR): ${node.iar}%`;
+- Índice de Aptitud de Riego (IAR): ${node.iar}%
+
+Tabla de referencia de salinidad en ppm:
+- Destilada: 0-10 ppm
+- Agua purificada: 10-50 ppm
+- Agua corriente (ideal/segura): 50-500 ppm
+- Agua dura (precaución): 500-1000 ppm
+- Salina/Agua de mar (peligro para cultivos): >1000 ppm (el agua de mar típica es 35,000 ppm)`;
 
   const contents = [
     { role: "user", parts: [{ text: `${SYSTEM_PROMPT}\n\n${nodeContext}` }] },

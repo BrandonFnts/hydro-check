@@ -17,7 +17,8 @@ export const alertClient = {
             
             Object.keys(nodeHistory).forEach(pushId => {
               const lectura = nodeHistory[pushId];
-              const status = getSalinityStatus(lectura.ce);
+              const salinity = Math.round((lectura.ce || 0) * 500);
+              const status = getSalinityStatus(salinity);
 
               if (status !== 'success') {
                 allAlerts.push({
@@ -25,8 +26,8 @@ export const alertClient = {
                   nodeId: nodeId,
                   node: nodeId,
                   timestamp: lectura.timestamp,
-                  value: lectura.ce,
-                  limit: getSalinityLimit(lectura.ce),
+                  value: salinity,
+                  limit: getSalinityLimit(salinity),
                   status
                 });
               }

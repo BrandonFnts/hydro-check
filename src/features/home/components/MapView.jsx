@@ -61,7 +61,7 @@ const MapView = ({ nodes = [], onNodeSelect }) => {
               <div className="text-center">
                 <h3 className="font-bold text-lg mb-1">{node.name}</h3>
                 <p className="mb-1 text-sm text-gray-600">Aptitud Riego (IAR): <strong>{node.iar}%</strong></p>
-                <p className="mb-2 text-sm text-gray-600">Salinidad: <strong>{node.salinity} ppt</strong></p>
+                <p className="mb-2 text-sm text-gray-600">Salinidad: <strong>{node.salinity} ppm</strong></p>
                 <Button type="primary" size="small" onClick={() => onNodeSelect(node)}>
                   Ver Detalles
                 </Button>
